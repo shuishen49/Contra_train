@@ -19,8 +19,14 @@ import pandas as pd
 
 from typing import Callable
 
-
 import time
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath("./Contra-Nes"))
+
+retro.data.Integrations.add_custom_path(
+        os.path.join(SCRIPT_DIR, "Contra-Nes/")
+)
+rom_path=os.path.join(SCRIPT_DIR, "Contra-Nes/")
 
 CHECK_FREQ_NUMB = 10000
 TOTAL_TIMESTEP_NUMB = 4000000
@@ -63,7 +69,7 @@ class DeadlockEnv(gym.Wrapper):
     def step(self, action):
         state, reward, done, info = self.env.step(action)
         reward=0
-        # self.env.render()
+        self.env.render()
         # print(state.shape)
         ifdie=info['die']
         lives = info['lives']
@@ -185,7 +191,9 @@ class SonicDiscretizer(Discretizer):
 
 
 # env = retro.make(game='Contra-Nes' ,state="Level1",record="./record/.")
-env = retro.make(game='Contra-Nes' ,state="Level1-99")
+# env = retro.make(game='Contra-Nes' ,state="Level1",inttype=retro.data.Integrations.CUSTOM_ONLY)
+env = retro.make(game=rom_path,state="Level2",inttype=retro.data.Integrations.CUSTOM_ONLY)
+
 # 限制按键
 env = SonicDiscretizer(env)
 # 计算奖励函数
@@ -346,5 +354,5 @@ lr_schedule = linear_schedule(1e-05)
 
 # model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,learning_rate=lr_schedule, **model_params)
 model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,**model_params)
-model.set_parameters("best_model_80000")
+# model.set_parameters("best_model")
 model.learn(total_timesteps=TOTAL_TIMESTEP_NUMB, callback=callback,reset_num_timesteps=True)

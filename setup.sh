@@ -9,8 +9,10 @@ sudo apt-get update \
   libxcb-xfixes0 -y \
   libxcb-xinerama0 -y \
   libxcb-xkb1 -y \
-  libxkbcommon-x11-0 \
-  ffmpeg libsm6 libxext6 \
+  libxkbcommon-x11-0 -y\
+  ffmpeg -y\
+  libsm6 -y\
+  libxext6 -y\
+  freeglut3-dev\
  && sudo rm -rf /var/lib/apt/lists/* \
- &&  python3  -m retro.import ./Contra-Nes/
- 
+ && python3  -m retro.import ./Contra-Nes/
