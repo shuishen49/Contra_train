@@ -1,0 +1,7 @@
+numpy
+pyqt5
+pillow
+gym-retro
+gym==0.21.0
+matplotlib
+stable-baselines3[extra]

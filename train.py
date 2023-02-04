@@ -1,4 +1,4 @@
-from nes_py.wrappers import JoypadSpace
+
 import retro
 import gym
 
@@ -17,10 +17,15 @@ from stable_baselines3.common.callbacks import BaseCallback
 import cv2
 import pandas as pd
 
+from typing import Callable
+
+
+import time
+
 CHECK_FREQ_NUMB = 10000
-TOTAL_TIMESTEP_NUMB = 2000000
+TOTAL_TIMESTEP_NUMB = 4000000
 # LEARNING_RATE = 0.00005
-LEARNING_RATE = 0.00003
+LEARNING_RATE = 0.000003
 N_STEPS = 2048
 GAMMA = 0.99
 BATCH_SIZE = 64
@@ -58,15 +63,17 @@ class DeadlockEnv(gym.Wrapper):
     def step(self, action):
         state, reward, done, info = self.env.step(action)
         reward=0
-        self.env.render()
+        # self.env.render()
+        # print(state.shape)
         ifdie=info['die']
         lives = info['lives']
         score =  info['score']
         xpos=info['xpos']
         xscroll=info['xscroll']
         boss_defeated=info['beat_boss']
-        # if score>self.score:
-        #     reward+=(score-self.score)/100
+        if score>self.score:
+            reward+=(score-self.score)
+            self.score=score
         # 失去生命减分
         # if lives <self.last_lives:
         #     reward-=3000
@@ -81,28 +88,29 @@ class DeadlockEnv(gym.Wrapper):
             done = True
 
         if xscroll==self.last_xscroll:
-            reward-=1
+            reward-=0.1
         
         if xpos<=100:
             reward-=1
 
         if ifdie != 1:
-            reward-=100
+            reward-=10
             done=True
         # 3072是管卡最后，136是可以打到敌人的位置
         if xscroll > self.last_xscroll or xscroll ==3072:
-            reward+=0.1
+            reward+=1
             self.last_xscroll=xscroll
             if xscroll ==3072:
                 reward+=136-xpos
             if xpos==136:
                 reward+=10
-
         # if lives ==1:
         #     done=True
         # 通关得分
         if boss_defeated==8:
             reward += 5000
+        # print(reward)
+        # time.sleep(0.05)
         return state, reward, done, info
 
 # 跳过画面每2真保留一个画面，节省计算时间
@@ -130,10 +138,14 @@ class Downsample(gym.ObservationWrapper):
             shape=newshape, dtype=np.uint8)
 
     def observation(self, frame):
+                # 绘制画面
+        # cv2.imshow('game',np.array(frame))
+        # key = cv2.waitKey(10)
         height, width, _ = self.observation_space.shape
         frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
         if frame.ndim == 2:
             frame = frame[:,:,None]
+
         return frame
 
 class Discretizer(gym.ActionWrapper):
@@ -190,9 +202,11 @@ env = GrayScaleObservation(env,keep_dim=True)
 # 变成
 # (74, 80, 1)
 env = Downsample(env, DOWN_SAMPLE_RATE)
-
 env = DummyVecEnv([lambda: env])
 env = VecFrameStack(env,4,channels_order='last')
+
+global best_score
+best_score=0
 
 class TrainAndLoggingCallback(BaseCallback):
     def __init__(self, check_freq, save_path, verbose=1):
@@ -212,7 +226,7 @@ class TrainAndLoggingCallback(BaseCallback):
             total_reward = [0] * EPISODE_NUMBERS
             total_time = [0] * EPISODE_NUMBERS
             best_reward = 0
-
+            global best_score
             for i in range(EPISODE_NUMBERS):
                 state = env.reset()  # reset for each new trial
                 done = False
@@ -220,12 +234,20 @@ class TrainAndLoggingCallback(BaseCallback):
                 total_time[i] = 0
                 while not done and total_time[i] < 10000:
                     action, _ = model.predict(state)
+                    last_state=state
                     state, reward, done, info = env.step(action)
                     total_reward[i] += reward[0]
                     total_time[i] += 1
 
                 if total_reward[i] > best_reward:
                     best_reward = total_reward[i]
+                    # 绘制画面
+                    if best_reward>best_score:
+                        best_score=best_reward
+                        cv2.imwrite('last3.png', np.array(last_state[0][:,:,3]))
+                        cv2.imwrite('last2.png', np.array(last_state[0][:,:,2]))
+                        cv2.imwrite('last1.png', np.array(last_state[0][:,:,1]))
+                        cv2.imwrite('last0.png', np.array(last_state[0][:,:,0]))
                     best_epoch = self.n_calls
 
                 state = env.reset()  # reset for each new trial
@@ -288,7 +310,41 @@ class SaveOnBestTrainingRewardCallback(BaseCallback):
 # Setup model saving callback
 callback = TrainAndLoggingCallback(check_freq=CHECK_FREQ_NUMB, save_path=CHECKPOINT_DIR)
 # This is the AI model started
-model = PPO('CnnPolicy', env, verbose=0, tensorboard_log=LOG_DIR, learning_rate=LEARNING_RATE, n_steps=N_STEPS,
-            batch_size=BATCH_SIZE, n_epochs=N_EPOCHS, gamma=GAMMA)
-model.set_parameters("best_model")
-model.learn(total_timesteps=TOTAL_TIMESTEP_NUMB, callback=callback)
+# model = PPO('CnnPolicy', env, verbose=0, tensorboard_log=LOG_DIR, learning_rate=LEARNING_RATE, n_steps=N_STEPS,
+#             batch_size=BATCH_SIZE, n_epochs=N_EPOCHS, gamma=GAMMA)
+# 'learning_rate': 9.434717363652453e-05,
+
+model_params={
+    'n_steps': 5952,
+    'gamma': 0.8431945080247621,
+    'learning_rate': 2e-05,
+    'clip_range': 0.366043287552883,
+    'gae_lambda': 0.8177999838257695
+}
+
+
+def linear_schedule(initial_value: float) -> Callable[[float], float]:
+    """
+    Linear learning rate schedule.
+
+    :param initial_value: Initial learning rate.
+    :return: schedule that computes
+      current learning rate depending on remaining progress
+    """
+    def func(progress_remaining: float) -> float:
+        """
+        Progress will decrease from 1 (beginning) to 0.
+
+        :param progress_remaining:
+        :return: current learning rate
+        """
+        return progress_remaining * initial_value
+
+    return func
+
+lr_schedule = linear_schedule(1e-05)
+
+# model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,learning_rate=lr_schedule, **model_params)
+model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,**model_params)
+model.set_parameters("best_model_80000")
+model.learn(total_timesteps=TOTAL_TIMESTEP_NUMB, callback=callback,reset_num_timesteps=True)

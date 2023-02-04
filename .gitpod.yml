@@ -1,0 +1,15 @@
+
+# List the start up tasks. Learn more https://www.gitpod.io/docs/config-start-tasks/
+image: gitpod/workspace-full-vnc
+ports:
+  - port: 5900
+    onOpen: ignore
+  - port: 6080
+    onOpen: open-preview
+tasks:
+  - init: pip3 install -r requirements.txt
+    command: python3 -m retro.import 
+  - init: >
+      sh ./setup.sh 
+    command: python3 smb_ai.py --load-file "Example world1-1"  --load-inds 1214 
+# List the ports to expose. Learn more https://www.gitpod.io/docs/config-ports/
