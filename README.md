@@ -26,3 +26,5 @@ scenario.json
 我并没有训练出第一关可以一命通关的模型。可能超参设置有问题导致的。
 
 请使用 train.py开始训练模型
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/shuishen49/Contra_train/blob/main/train.py)
