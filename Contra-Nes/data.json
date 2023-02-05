@@ -1,5 +1,13 @@
 {
   "info": {
+    "Animation": {
+      "address": 214,
+      "type": "|u1"
+    },
+    "Weapon": {
+      "address": 170,
+      "type": "|u1"
+    },
     "beat_boss": {
       "address": 44,
       "type": "|u1"
@@ -31,6 +39,10 @@
     "xscroll": {
       "address": 100,
       "type": ">u2"
+    },
+    "ypos": {
+      "address": 794,
+      "type": "<u2"
     }
   }
 }
