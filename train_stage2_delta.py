@@ -200,7 +200,7 @@ class SonicDiscretizer(Discretizer):
     # B是子弹
 
     def __init__(self, env):
-        super().__init__(env=env, combos=[['UP'],['DOWN'],['LEFT'],['RIGHT'],['A'], ['B']])
+        super().__init__(env=env, combos=[['UP','B'],['DOWN','B'],['LEFT','B'],['RIGHT','B'],['A'], ['B']])
 
 
 # env = retro.make(game='Contra-Nes' ,state="Level1",record="./record/.")
@@ -339,7 +339,7 @@ callback = TrainAndLoggingCallback(check_freq=CHECK_FREQ_NUMB, save_path=CHECKPO
 model_params={
     'n_steps': 5952,
     'gamma': 0.8431945080247621,
-    'learning_rate': 3e-04,
+    'learning_rate': 2e-04,
     'clip_range': 0.366043287552883,
     'gae_lambda': 0.8177999838257695
 }
@@ -369,5 +369,5 @@ lr_schedule = linear_schedule(1e-05)
 # model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,learning_rate=lr_schedule, **model_params)
 model = PPO('CnnPolicy', env, tensorboard_log=LOG_DIR, verbose=1,**model_params)
 # model.set_parameters("best_model")
-model.set_parameters("./training/best_model_50000")
+model.set_parameters("./training/best_model_180000")
 model.learn(total_timesteps=TOTAL_TIMESTEP_NUMB, callback=callback,reset_num_timesteps=True)
