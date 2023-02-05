@@ -66,12 +66,13 @@ class DeadlockEnv(gym.Wrapper):
         self.last_lives = 2
         self.count = 0
         self.last_xscroll = 0
+        self.previous_frame = obs 
         return self.env.reset(**kwargs)
 
     def step(self, action):
         state, reward, done, info = self.env.step(action)
         reward=0
-        self.env.render()
+        # self.env.render()
         # print(state.shape)
         ifdie=info['die']
         lives = info['lives']
@@ -107,7 +108,7 @@ class DeadlockEnv(gym.Wrapper):
             reward -= 10
             done = True
         if xscroll==self.last_xscroll:
-            reward-=0.01
+            reward-=0.001
         # if xpos<=100:
         #     reward-=1
         if ifdie != 1:
@@ -243,6 +244,7 @@ class TrainAndLoggingCallback(BaseCallback):
             global best_score
             for i in range(EPISODE_NUMBERS):
                 state = env.reset()  # reset for each new trial
+                
                 done = False
                 total_reward[i] = 0
                 total_time[i] = 0
