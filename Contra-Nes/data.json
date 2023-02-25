@@ -1,48 +1,77 @@
 {
-  "info": {
-    "Animation": {
-      "address": 214,
-      "type": "|u1"
-    },
-    "Weapon": {
-      "address": 170,
-      "type": "|u1"
-    },
-    "beat_boss": {
-      "address": 44,
-      "type": "|u1"
-    },
-    "die": {
-      "address": 144,
-      "type": "|u1"
-    },
-    "level": {
-      "address": 48,
-      "type": "|u1"
-    },
-    "lives": {
-      "address": 50,
-      "type": "|i1"
-    },
-    "player_state": {
-      "address": 326,
-      "type": "|u1"
-    },
-    "score": {
-      "address": 2018,
-      "type": "<u2"
-    },
-    "xpos": {
-      "address": 820,
-      "type": "<u2"
-    },
-    "xscroll": {
-      "address": 100,
-      "type": ">u2"
-    },
-    "ypos": {
-      "address": 794,
-      "type": "<u2"
+    "info": {
+      "Animation": {
+        "address": 214,
+        "type": "|u1"
+      },
+      "Weapon": {
+        "address": 170,
+        "type": "|u1"
+      },
+      "beat_boss": {
+        "address": 44,
+        "type": "|u1"
+      },
+      "die": {
+        "address": 144,
+        "type": "|u1"
+      },
+      "ehp1": {
+        "address": 1409,
+        "type": "|i1"
+      },
+      "ehp2": {
+        "address": 1410,
+        "type": "|i1"
+      },
+      "ehp3": {
+        "address": 1411,
+        "type": "|i1"
+      },
+      "ehp4": {
+        "address": 1412,
+        "type": "|i1"
+      },
+      "ehp5": {
+        "address": 1413,
+        "type": "|i1"
+      },
+      "ehp6": {
+        "address": 1414,
+        "type": "|i1"
+      },
+      "ehp7": {
+        "address": 1479,
+        "type": "|i1"
+      },
+      "level": {
+        "address": 48,
+        "type": "|u1"
+      },
+      "lives": {
+        "address": 50,
+        "type": "|i1"
+      },
+      "player_state": {
+        "address": 326,
+        "type": "|u1"
+      },
+      "score": {
+        "address": 2018,
+        "type": "<u2"
+      },
+      "xpos": {
+        "address": 820,
+        "type": "<u2"
+      },
+      "xscroll": {
+        "address": 100,
+        "type": ">u2"
+      },
+      "ypos": {
+        "address": 794,
+        "type": "<u2"
+      }
     }
   }
-}
+  
