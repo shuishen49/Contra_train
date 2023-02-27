@@ -44,6 +44,14 @@
         "address": 1479,
         "type": "|i1"
       },
+      "ehp8": {
+        "address": 1525,
+        "type": "|i1"
+      },
+      "ehp9": {
+        "address": 1526,
+        "type": "|i1"
+      },
       "level": {
         "address": 48,
         "type": "|u1"
